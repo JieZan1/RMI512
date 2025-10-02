@@ -1,16 +1,23 @@
-# comp512 programming assignment 1
+# COMP512 Programming Assignment 1
 
-To run the RMI resource manager:
+A Travel Reservation system, a component-based distributed information system, where customers can reserve flights, cars and rooms for their vacation.
 
+To run the RMI resource managers as well as the middleware, a convenience script file run_servers.sh is provided:
 ```
 cd Server/
-./run_server.sh [<rmi_name>] # starts a single ResourceManager
-./run_servers.sh # convenience script for starting multiple resource managers
+./make_all  # Only required on first run
+./run_servers.sh
 ```
 
-To run the RMI client:
-
+Then start a Client to interact with the system. To run the RMI client:
 ```
 cd Client
-./run_client.sh [<server_hostname> [<server_rmi_name>]]
+./run_client.sh [<middleware_hostname> [<middleware_name>]]
 ```
+
+## Testing
+To run the tests, in a running client session, send the command:
+```
+!, <file_path>
+```
+Where file_path are the path for the test files, which contains batched commands to be executed. Some test files are already provided under the Client/Client/Test folder.
