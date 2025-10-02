@@ -317,18 +317,6 @@ public class RMIMiddleware implements IResourceManager
         return s;
     }
 
-//    public String getBill()
-//    {
-//        String s = "Bill for customer " + m_ID + "\n";
-//        for (String key : m_reservations.keySet())
-//        {
-//            ReservedItem item = (ReservedItem) m_reservations.get(key);
-//            s += + item.seat/num() + " " + item.getReservableItemKey() + " $" + item.getPrice() + "\n";
-//        }
-//        return s;
-//    }
-
-      
     public synchronized int queryFlightPrice(int flightNumber) throws RemoteException {
         System.out.println("DEBUG: queryFlightPrice called - Flight: " + flightNumber);
         int price = this.flightRM.queryFlightPrice(flightNumber);
@@ -404,22 +392,32 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public synchronized boolean bundle(int customerID, Vector<String> flightNumbers, String location, boolean car, boolean room) throws RemoteException {
+    /**
+     * Reserve a bundle for the trip.
+     *
+     * @return Success
+     */
+    public boolean bundle(int customerID, Vector<String> flightNumbers, String location, boolean car, boolean room)
+            throws RemoteException {
         System.out.println("DEBUG: bundle called - Customer: " + customerID + ", Flights: " + flightNumbers
                 + ", Location: " + location + ", Car: " + car + ", Room: " + room);
-        
+
         // Check is the customer is valid
-        if(customerManager.getCustomer(customerID) == null){
+        if (customerManager.getCustomer(customerID) == null) {
             System.out.println("DEBUG: bundle failed - customer does not exist");
             return false;
         }
-        
 
         // Check if all requested items are available
+        HashMap<Integer, Integer> to_be_reserved_flights = new HashMap<>();
         for (String flightNumber : flightNumbers) {
             int flightNumberInt = Integer.parseInt(flightNumber);
-            if (!m_Flights_available.containsKey(flightNumberInt) || m_Flights_available.get(flightNumberInt) <= 0) {
-                System.out.println("DEBUG: bundle failed - flight " + flightNumber + " not available");
+            to_be_reserved_flights.merge(flightNumberInt, 1, Integer::sum);
+        }
+        for (Integer flight : to_be_reserved_flights.keySet()) {
+            if (!m_Flights_available.containsKey(flight)
+                    || m_Flights_available.get(flight) < to_be_reserved_flights.get(flight)) {
+                System.out.println("DEBUG: bundle failed - flight " + Integer.toString(flight) + " not available");
                 return false;
             }
         }
@@ -435,7 +433,6 @@ public class RMIMiddleware implements IResourceManager
                 return false;
             }
         }
-
 
         for (String flightNumber : flightNumbers) {
             int flightNumberInt = Integer.parseInt(flightNumber);
