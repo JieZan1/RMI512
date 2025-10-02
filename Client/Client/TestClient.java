@@ -26,8 +26,6 @@ public abstract class TestClient
         System.out.println();
         System.out.println("Location \"help\" for list of supported commands");
 
-        BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-
         for (int i = 0; i<101; i++)
         {
             // Read the next command
@@ -41,22 +39,8 @@ public abstract class TestClient
             }
 
             Vector<String> arguments = new Vector<String>();
-            try {
-                System.out.print((char)27 + "[32;1m\n>] " + (char)27 + "[0m");
-                command = stdin.readLine().trim();
-            }
-            catch (IOException io) {
-                System.err.println((char)27 + "[31;1mClient exception: " + (char)27 + "[0m" + io.getLocalizedMessage());
-                io.printStackTrace();
-                System.exit(1);
-            }
 
             try {
-                if (command.startsWith("!,")) {
-                    String filename = command.substring(2).trim();
-                    executeBatchFile(filename);
-                    continue;
-                }
                 arguments = parse(command);
                 Command cmd = Command.fromString((String)arguments.elementAt(0));
                 try {
