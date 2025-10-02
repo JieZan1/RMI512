@@ -118,7 +118,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean addFlight(int flightNum, int flightSeats, int flightPrice) throws RemoteException {
+    public synchronized boolean addFlight(int flightNum, int flightSeats, int flightPrice) throws RemoteException {
         System.out.println("DEBUG: addFlight called - Flight: " + flightNum + ", Seats: " + flightSeats + ", Price: " + flightPrice);
         m_Flights_available.merge(flightNum, flightSeats, Integer::sum);
         boolean result = this.flightRM.addFlight(flightNum, flightSeats, flightPrice);
@@ -127,7 +127,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean addCars(String location, int numCars, int price) throws RemoteException {
+    public synchronized boolean addCars(String location, int numCars, int price) throws RemoteException {
         System.out.println("DEBUG: addCars called - Location: " + location + ", Cars: " + numCars + ", Price: " + price);
         m_Cars_available.merge(location, numCars, Integer::sum);
         boolean result = this.carRM.addCars(location, numCars, price);
@@ -136,7 +136,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean addRooms(String location, int numRooms, int price) throws RemoteException {
+    public synchronized boolean addRooms(String location, int numRooms, int price) throws RemoteException {
         System.out.println("DEBUG: addRooms called - Location: " + location + ", Rooms: " + numRooms + ", Price: " + price);
         m_Rooms_available.merge(location, numRooms, Integer::sum);
         boolean result = this.roomRM.addRooms(location, numRooms, price);
@@ -145,7 +145,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public int newCustomer() throws RemoteException {
+    public synchronized int newCustomer() throws RemoteException {
         System.out.println("DEBUG: newCustomer called (auto-generate ID)");
         int customerId = customerManager.newCustomer();
         System.out.println("DEBUG: newCustomer created with ID: " + customerId);
@@ -153,7 +153,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean newCustomer(int cid) throws RemoteException {
+    public synchronized boolean newCustomer(int cid) throws RemoteException {
         System.out.println("DEBUG: newCustomer called with specific ID: " + cid);
         boolean result = customerManager.newCustomer(cid);
         System.out.println("DEBUG: newCustomer with ID " + cid + " result: " + result);
@@ -161,7 +161,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean deleteFlight(int flightNum) throws RemoteException {
+    public synchronized boolean deleteFlight(int flightNum) throws RemoteException {
         System.out.println("DEBUG: deleteFlight called - Flight: " + flightNum);
         if (customerManager.isFlightReserved(flightNum)){
             System.out.println("DEBUG: deleteFlight failed - flight " + flightNum + " has reservations");
@@ -176,7 +176,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean deleteCars(String location) throws RemoteException {
+    public synchronized boolean deleteCars(String location) throws RemoteException {
         System.out.println("DEBUG: deleteCars called - Location: " + location);
         if (customerManager.isCarReserved(location)){
             System.out.println("DEBUG: deleteCars failed - location " + location + " has reservations");
@@ -191,7 +191,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean deleteRooms(String location) throws RemoteException {
+    public synchronized boolean deleteRooms(String location) throws RemoteException {
         System.out.println("DEBUG: deleteRooms called - Location: " + location);
         if (customerManager.isRoomReserved(location)){
             System.out.println("DEBUG: deleteRooms failed - location " + location + " has reservations");
@@ -206,7 +206,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean deleteCustomer(int customerID) throws RemoteException {
+    public synchronized boolean deleteCustomer(int customerID) throws RemoteException {
         System.out.println("DEBUG: deleteCustomer called - Customer ID: " + customerID);
         // Get the customer's reserved items
         Map<Integer, Integer>reservedFlights = customerManager.getCustomerFlights(customerID);
@@ -229,7 +229,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public int queryFlight(int flightNumber) throws RemoteException {
+    public synchronized int queryFlight(int flightNumber) throws RemoteException {
         System.out.println("DEBUG: queryFlight called - Flight: " + flightNumber);
         int seat = 0;
         Integer seats = m_Flights_available.get(flightNumber);
@@ -241,7 +241,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public int queryCars(String location) throws RemoteException {
+    public synchronized int queryCars(String location) throws RemoteException {
         System.out.println("DEBUG: queryCars called - Location: " + location);
         int cars = 0;
         Integer seats = m_Cars_available.get(location);
@@ -253,7 +253,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public int queryRooms(String location) throws RemoteException {
+    public synchronized int queryRooms(String location) throws RemoteException {
         System.out.println("DEBUG: queryRooms called - Location: " + location);
         int rooms = 0;
         Integer seats = m_Rooms_available.get(location);
@@ -265,7 +265,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public String queryCustomerInfo(int customerID) throws RemoteException {
+    public synchronized String queryCustomerInfo(int customerID) throws RemoteException {
         System.out.println("DEBUG: queryCustomerInfo called - Customer ID: " + customerID);
         Map<Integer, Integer> reservedFlights = customerManager.getCustomerFlights(customerID);
         Map<String, Integer> reservedCars = customerManager.getCustomerCars(customerID);
@@ -329,7 +329,7 @@ public class RMIMiddleware implements IResourceManager
 //    }
 
       
-    public int queryFlightPrice(int flightNumber) throws RemoteException {
+    public synchronized int queryFlightPrice(int flightNumber) throws RemoteException {
         System.out.println("DEBUG: queryFlightPrice called - Flight: " + flightNumber);
         int price = this.flightRM.queryFlightPrice(flightNumber);
         System.out.println("DEBUG: queryFlightPrice result: $" + price);
@@ -337,7 +337,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public int queryCarsPrice(String location) throws RemoteException {
+    public synchronized int queryCarsPrice(String location) throws RemoteException {
         System.out.println("DEBUG: queryCarsPrice called - Location: " + location);
         int price = this.carRM.queryCarsPrice(location);
         System.out.println("DEBUG: queryCarsPrice result: $" + price);
@@ -345,7 +345,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public int queryRoomsPrice(String location) throws RemoteException {
+    public synchronized int queryRoomsPrice(String location) throws RemoteException {
         System.out.println("DEBUG: queryRoomsPrice called - Location: " + location);
         int price = this.roomRM.queryRoomsPrice(location);
         System.out.println("DEBUG: queryRoomsPrice result: $" + price);
@@ -353,7 +353,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean reserveFlight(int customerID, int flightNumber) throws RemoteException {
+    public synchronized boolean reserveFlight(int customerID, int flightNumber) throws RemoteException {
         System.out.println("DEBUG: reserveFlight called - Customer: " + customerID + ", Flight: " + flightNumber);
         Integer seat = m_Flights_available.get(flightNumber);
 
@@ -370,7 +370,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean reserveCar(int customerID, String location) throws RemoteException {
+    public synchronized boolean reserveCar(int customerID, String location) throws RemoteException {
         System.out.println("DEBUG: reserveCar called - Customer: " + customerID + ", Location: " + location);
         Integer seat = m_Cars_available.get(location);
 
@@ -387,7 +387,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean reserveRoom(int customerID, String location) throws RemoteException {
+    public synchronized boolean reserveRoom(int customerID, String location) throws RemoteException {
         System.out.println("DEBUG: reserveRoom called - Customer: " + customerID + ", Location: " + location);
         Integer seat = m_Rooms_available.get(location);
 
@@ -404,7 +404,7 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public boolean bundle(int customerID, Vector<String> flightNumbers, String location, boolean car, boolean room) throws RemoteException {
+    public synchronized boolean bundle(int customerID, Vector<String> flightNumbers, String location, boolean car, boolean room) throws RemoteException {
         System.out.println("DEBUG: bundle called - Customer: " + customerID + ", Flights: " + flightNumbers
                 + ", Location: " + location + ", Car: " + car + ", Room: " + room);
         
@@ -456,11 +456,11 @@ public class RMIMiddleware implements IResourceManager
     }
 
       
-    public String getName() throws RemoteException {
+    public synchronized String getName() throws RemoteException {
         return s_middleWareName;
     }
 
-    public String removeBillHeader(String bill) {
+    public synchronized String removeBillHeader(String bill) {
         if (bill == null || bill.isEmpty()) {
             return "";
         }
